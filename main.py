@@ -48,6 +48,7 @@ class MyGame(arcade.Window):
 
         self.player_list.extend(PLAYER)
         self.meteor_list.extend(METEOR)
+
         print(type(self.meteor_list))
 
         self.camera = arcade.Camera(self.width, self.height)
@@ -118,15 +119,20 @@ class MyGame(arcade.Window):
 
         meteor_sprite = arcade.Sprite(self.meteor_list[random.randrange(0, len(self.meteor_list) - 1)], CHARACTER_SCALING)
         meteor_sprite.center_x = random.randint(0, 600)
-        meteor_sprite.center_y = 700
+        meteor_sprite.center_y = 850
         meteor_sprite.change_y = -10
         self.scene.add_sprite('Meteor', meteor_sprite)
 
         for laser in self.laser_list:
             hit_list = arcade.check_for_collision_with_list(laser, self.scene['Meteor'])
-            if len(hit_list):
+            if hit_list:
                 laser.remove_from_sprite_lists()
             for meteor_sprite in hit_list:
+                meteor_sprite.remove_from_sprite_lists()
+            if laser.bottom > 800: laser.remove_from_sprite_lists()
+
+        for meteor_sprite in self.scene['Meteor']:
+            if meteor_sprite.top < 0:
                 meteor_sprite.remove_from_sprite_lists()
 
 
