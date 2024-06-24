@@ -1,20 +1,18 @@
 import random
-import time
 
 import arcade
 import glob
 
 window_width = 600
 window_height = 800
-window_title = 'Test'
+window_title = 'Space_Combat'
 
 CHARACTER_SCALING = 1
-TILE_SCALING = 0.5
+
 
 PLAYER_MOVEMENT_SPEED = 5
 LASER_SPEAD = 10
-GRAVITY = 0.25
-PLAYER_SPEAD_JUMP = 5
+
 
 PLAYER = glob.glob('player/*')
 METEOR = glob.glob('meteor/*')
@@ -39,25 +37,20 @@ class MyGame(arcade.Window):
     def setup(self):
         self.scene = arcade.Scene()
 
-        # инициализация списков обектов
+        #списки обектов
         self.scene.add_sprite_list('Player')
         self.scene.add_sprite_list('Meteor', use_spatial_hash=True)
         self.laser_list = arcade.SpriteList()
 
         self.player_list.extend(PLAYER)
         self.meteor_list.extend(METEOR)
-
-        print(type(self.meteor_list))
-
         self.camera = arcade.Camera(self.width, self.height)
-        # создание спрайта игрока
 
+        #спрайт игрока
         self.player_sprite = arcade.Sprite(self.player_list[0], CHARACTER_SCALING)
         self.player_sprite.center_x = 300
         self.player_sprite.center_y = 50
         self.scene.add_sprite('Player', self.player_sprite)
-
-        # создание спрайтов метеоритов
 
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, None)
 
@@ -89,41 +82,36 @@ class MyGame(arcade.Window):
         if key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = 0
 
-    """def on_mouse_press(self, x, y, btton, modifires):
-
-        laser = arcade.Sprite('laser/laserBlue.png')
-        laser.change_y = LASER_SPEAD
-        laser.center_x = self.player_sprite.center_x
-        laser.bottom = self.player_sprite.top
-
-        self.laser_list.append(laser)"""
 
     def on_update(self, delta_time):
         self.laser_list.update()
         self.scene.update()
         self.physics_engine.update()
 
+        #создание лазера
         laser = arcade.Sprite('laser/laserBlue.png')
         laser.change_y = LASER_SPEAD
         laser.center_x = self.player_sprite.center_x
         laser.bottom = self.player_sprite.top
         self.laser_list.append(laser)
 
-        meteor_sprite = arcade.Sprite(self.meteor_list[random.randrange(0, len(self.meteor_list) - 1)],
-                                      CHARACTER_SCALING)
+        #создание метеорита
+        meteor_sprite = arcade.Sprite(self.meteor_list[random.randrange(0, len(self.meteor_list) - 1)], CHARACTER_SCALING)
         meteor_sprite.center_x = random.randint(0, 600)
         meteor_sprite.center_y = 850
         meteor_sprite.change_y = -10
         self.scene.add_sprite('Meteor', meteor_sprite)
 
+        #проверка столкновения лазера с метеоритом
         for laser in self.laser_list:
             hit_list = arcade.check_for_collision_with_list(laser, self.scene['Meteor'])
             if hit_list:
                 laser.remove_from_sprite_lists()
             for meteor_sprite in hit_list:
                 meteor_sprite.remove_from_sprite_lists()
+            #удаление лезра за пределами игровго поля
             if laser.bottom > 800: laser.remove_from_sprite_lists()
-
+        # удаление метеорита за пределами игровго поля
         for meteor_sprite in self.scene['Meteor']:
             if meteor_sprite.top < 0:
                 meteor_sprite.remove_from_sprite_lists()
