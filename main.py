@@ -21,7 +21,6 @@ METEOR = glob.glob('meteor/*')
 LASER = glob.glob('laser/*')
 
 
-
 class MyGame(arcade.Window):
 
     def __init__(self):
@@ -36,7 +35,6 @@ class MyGame(arcade.Window):
         self.camera = None
 
         arcade.set_background_color(arcade.color.CHARCOAL)
-
 
     def setup(self):
         self.scene = arcade.Scene()
@@ -59,19 +57,15 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = 50
         self.scene.add_sprite('Player', self.player_sprite)
 
-        #создание спрайтов метеоритов
+        # создание спрайтов метеоритов
 
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, None)
-
-
-
 
     def on_draw(self):
         self.clear()
         self.scene['Player'].draw()
         self.scene['Meteor'].draw()
         self.laser_list.draw()
-
 
     def on_key_press(self, key, modifiers):
 
@@ -104,8 +98,6 @@ class MyGame(arcade.Window):
 
         self.laser_list.append(laser)"""
 
-
-
     def on_update(self, delta_time):
         self.laser_list.update()
         self.scene.update()
@@ -117,7 +109,8 @@ class MyGame(arcade.Window):
         laser.bottom = self.player_sprite.top
         self.laser_list.append(laser)
 
-        meteor_sprite = arcade.Sprite(self.meteor_list[random.randrange(0, len(self.meteor_list) - 1)], CHARACTER_SCALING)
+        meteor_sprite = arcade.Sprite(self.meteor_list[random.randrange(0, len(self.meteor_list) - 1)],
+                                      CHARACTER_SCALING)
         meteor_sprite.center_x = random.randint(0, 600)
         meteor_sprite.center_y = 850
         meteor_sprite.change_y = -10
@@ -136,13 +129,10 @@ class MyGame(arcade.Window):
                 meteor_sprite.remove_from_sprite_lists()
 
 
-
-
-        meteor_check_list = arcade.check_for_collision_with_list(self.player_sprite, self.scene['Meteor'])
+"""        meteor_check_list = arcade.check_for_collision_with_list(self.player_sprite, self.scene['Meteor'])
 
         for meteor_sprite in meteor_check_list:
-            meteor_sprite.remove_from_sprite_lists()
-
+            meteor_sprite.remove_from_sprite_lists()"""
 
 
 def main():
