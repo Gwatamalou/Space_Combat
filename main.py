@@ -20,11 +20,15 @@ LASER = glob.glob('laser/*')
 
 
 class Entity(arcade.Sprite):
-    def __init__(self, sprite_list, center_x = 0, center_y = 0,):
+    def __init__(self, sprite_list, center_x = 0, center_y = 0, change_x = 0, change_y = 0, bottom = 0):
         super().__init__()
         self.sprite_list = arcade.Sprite(sprite_list, CHARACTER_SCALING)
         self.sprite_list.center_x = center_x
+        self.sprite_list.change_y = change_y
+        self.sprite_list.center_x = center_x
         self.sprite_list.center_y = center_y
+        self.sprite_list.bottom = bottom
+
 
 
 
@@ -59,8 +63,9 @@ class MyGame(arcade.Window):
         self.meteor_list.extend(METEOR)
         self.laser_list.extend(LASER)
 
-        self.player_sprit = Entity(self.player_list[0], 300, )
-        self.laser_sprit = Entity(self.laser_list[1], 400, 100)
+        self.player_sprit = Entity(self.player_list[0], 300 ,50)
+
+        #self.scene.add_sprite('Laser', self.laser_sprit.sprite_list)
 
 
         self.camera = arcade.Camera(self.width, self.height)
@@ -77,10 +82,10 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
 
-        if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprit.sprite_list.change_y = PLAYER_MOVEMENT_SPEED
-        if key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprit.sprite_list.change_y = -PLAYER_MOVEMENT_SPEED
+        # if key == arcade.key.UP or key == arcade.key.W:
+        #     self.player_sprit.sprite_list.change_y = PLAYER_MOVEMENT_SPEED
+        # if key == arcade.key.DOWN or key == arcade.key.S:
+        #     self.player_sprit.sprite_list.change_y = -PLAYER_MOVEMENT_SPEED
         if key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprit.sprite_list.change_x = -PLAYER_MOVEMENT_SPEED
         if key == arcade.key.RIGHT or key == arcade.key.D:
@@ -88,10 +93,10 @@ class MyGame(arcade.Window):
 
     def on_key_release(self, key, modifiers):
 
-        if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprit.sprite_list.change_y = 0
-        if key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprit.sprite_list.change_y = 0
+        # if key == arcade.key.UP or key == arcade.key.W:
+        #     self.player_sprit.sprite_list.change_y = 0
+        # if key == arcade.key.DOWN or key == arcade.key.S:
+        #     self.player_sprit.sprite_list.change_y = 0
         if key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprit.sprite_list.change_x = 0
         if key == arcade.key.RIGHT or key == arcade.key.D:
@@ -103,11 +108,15 @@ class MyGame(arcade.Window):
         self.physics_engine.update()
 
         #создание лазера
-        laser = arcade.Sprite('laser/laserBlue.png')
-        laser.change_y = LASER_SPEAD
-        laser.center_x =  self.player_sprit.sprite_list.center_x
-        laser.bottom =  self.player_sprit.sprite_list.top
-        self.scene.add_sprite('Laser', laser)
+        # laser = arcade.Sprite(self.laser_list[0])
+        # laser.change_y = LASER_SPEAD
+        # laser.center_x =  self.player_sprit.sprite_list.center_x
+        # laser.bottom =  self.player_sprit.sprite_list.top
+        #self.laser_sprit.sprite_list.center_x = self.player_sprit.sprite_list.center_x
+        # self.laser_sprit.sprite_list.bottom = self.player_sprit.sprite_list.top
+        self.laser_sprit = Entity(self.laser_list[1], center_x=self.player_sprit.sprite_list.center_x,
+                                  change_y=LASER_SPEAD, bottom = self.player_sprit.sprite_list.top)
+        self.scene.add_sprite('Laser', self.laser_sprit.sprite_list)
 
 
 
