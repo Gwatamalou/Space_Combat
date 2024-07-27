@@ -1,5 +1,4 @@
 import random
-
 import arcade
 import glob
 
@@ -11,10 +10,12 @@ CHARACTER_SCALING = 1
 
 PLAYER_MOVEMENT_SPEED = 5
 LASER_SPEAD = 10
+LASER_GENERATION_INTERVAL = 0.2
 
 PLAYER = glob.glob('player/*')
 METEOR = glob.glob('meteor/*')
 LASER = glob.glob('laser/*')
+print(PLAYER)
 
 
 class Entity(arcade.Sprite):
@@ -39,13 +40,13 @@ class MyGame(arcade.Window):
         self.laser_list = []
         self.physics_engine = None
         self.camera = None
-
+        self.last_laser_time = 0
         arcade.set_background_color(arcade.color.CHARCOAL)
 
     def setup(self):
         self.scene = arcade.Scene()
 
-        # списки обектов
+        # списки объектов
         self.scene.add_sprite_list('Player')
         self.scene.add_sprite_list('Meteor', use_spatial_hash=True)
         self.scene.add_sprite_list('Laser', use_spatial_hash=True)
@@ -63,9 +64,7 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         self.clear()
-        self.scene['Player'].draw()
-        self.scene['Meteor'].draw()
-        self.scene['Laser'].draw()
+        self.scene.draw()
 
     def on_key_press(self, key, modifiers):
 
@@ -81,17 +80,14 @@ class MyGame(arcade.Window):
         if key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprit.sprite_list.change_x = 0
 
-    def on_update(self, delta_time):
-        self.scene.update()
-        self.physics_engine.update()
-
-        # создание лазера
-        self.laser_sprit = Entity(self.laser_list[0], center_x=self.player_sprit.sprite_list.center_x,
-                                  change_y=LASER_SPEAD, bottom=self.player_sprit.sprite_list.top)
+    def laser_generate(self):
+        self.laser_sprit = Entity(self.laser_list[0],
+                                    center_x=self.player_sprit.sprite_list.center_x,
+                                    change_y=LASER_SPEAD,
+                                  bottom=self.player_sprit.sprite_list.top)
         self.scene.add_sprite('Laser', self.laser_sprit.sprite_list)
 
-        # создание метеорита
-
+    def meteor_generate(self):
         self.meteor_sprite = Entity(self.meteor_list[random.randrange(0, len(self.meteor_list) - 1)],
                                     center_x=random.randint(0, 600),
                                     center_y=850,
@@ -99,6 +95,8 @@ class MyGame(arcade.Window):
                                     change_x=random.randint(-3, 3))
         self.scene.add_sprite('Meteor', self.meteor_sprite.sprite_list)
 
+
+    def check_collision(self):
         # проверка столкновения лазера с метеоритом
         for laser in self.scene['Laser']:
             hit_list = arcade.check_for_collision_with_list(laser, self.scene['Meteor'])
@@ -106,18 +104,26 @@ class MyGame(arcade.Window):
                 laser.remove_from_sprite_lists()
             for meteor_sprite in hit_list:
                 meteor_sprite.remove_from_sprite_lists()
-            # удаление лезра за пределами игровго поля
+            # удаление лезра за пределами игрового поля
             if laser.bottom > 800: laser.remove_from_sprite_lists()
-        # удаление метеорита за пределами игровго поля
+        # удаление метеорита за пределами игрового поля
         for meteor_sprite in self.scene['Meteor']:
             if meteor_sprite.top < 0:
                 meteor_sprite.remove_from_sprite_lists()
 
+    def on_update(self, delta_time):
+        self.scene.update()
+        self.physics_engine.update()
 
-        # meteor_check_list = arcade.check_for_collision_with_list(self.player_sprit.sprite_list, self.scene['Meteor'])
-        #
-        # for meteor_sprite in meteor_check_list:
-        #     meteor_sprite.remove_from_sprite_lists()
+        self.last_laser_time += delta_time
+        if self.last_laser_time > LASER_GENERATION_INTERVAL:
+            self.laser_generate()
+            self.last_laser_time = 0
+
+        if random.random() < 0.25:
+            self.meteor_generate()
+
+        self.check_collision()
 
 
 def main():
